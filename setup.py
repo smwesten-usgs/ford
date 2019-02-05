@@ -12,7 +12,7 @@ setup(
   name = 'FORD',
   packages = ['ford'],
   include_package_data = True,
-  version = '6.0.0',
+  version = '6.0.1',
   description = 'FORD, standing for FORtran Documenter, is an automatic documentation generator for modern Fortran programs.',
   long_description = long_description,
   author = 'Chris MacMackin',
