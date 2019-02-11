@@ -11,41 +11,41 @@
     </h1>
     {{ macros.info_bar(interface.name,interface.meta,incl_src,project_url,interface.hierarchy,interface.lines_description(project.proc_lines,project.proc_lines,'proc')) }}
   </div>
-  
+
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
       {{ macros.sidebar(project,interface) }}
     </div>
-    
+
     <div class="col-md-9" id='text'>
       <h2>{{ interface.permission }} interface {{ interface.name }}</h2>
    {{ interface.doc }}
      {% if interface.callsgraph %}
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Calls</h3>
+    <div class="card card-default">
+      <div class="card-heading">
+  <h3 class="card-title">Calls</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
   {{ interface.callsgraph }}
       </div>
     </div>
      {% endif %}
      {% if interface.calledbygraph %}
-    <div class="panel panel-default">
-      <div class="panel-heading">
-  <h3 class="panel-title">Called by</h3>
+    <div class="card card-default">
+      <div class="card-heading">
+  <h3 class="card-title">Called by</h3>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
      {{ interface.calledbygraph }}
       </div>
     </div>
      {% endif %}
     {% if interface.doc or interface.callsgraph or interface.calledbygraph %}<br>{% endif %}
 
-     <section class="visible-xs visible-sm hidden-md">
+     <!-- <section class="visible-xs visible-sm hidden-md">
        {{ macros.content_list(interface,1) }}
      </section>
-     <br class="visible-xs visible-sm hidden-md">
+     <br class="visible-xs visible-sm hidden-md"> -->
      
   {% if interface.functions|length > 0 %}
    <h2>Functions</h2>
