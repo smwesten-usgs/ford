@@ -1,12 +1,7 @@
 # FORD
-[![Latest Version](https://img.shields.io/pypi/v/ford.svg)](https://pypi.python.org/pypi/FORD)
-[![Latest homebrew version](https://img.shields.io/homebrew/v/ford.svg?maxAge=2592000)](http://braumeister.org/formula/ford)
 [![GitHub license](https://img.shields.io/badge/license-GPL_v3-blue.svg)](./LICENSE)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1422473.svg)](https://doi.org/10.5281/zenodo.1422473)
 
-<!-- [![GitHub tag](https://img.shields.io/github/release/cmacmackin/ford.svg)](https://github.com/cmacmackin/ford/releases/latest)
-     This last badge has not been rendering due to issues over at shields.io so I'm commenting it out for now
-     -->
+**This repo is a modified version of the one maintained by Fortran-FOSS-Programmers. Specifically, it has been modified in an attempt to make FORD software work with Bootstrap 4 themes (the original code was designed to work with Bootstrap 3).**
 
 This is an automatic documentation generator for modern Fortran programs.
 FORD stands for FORtran Documenter. As you may know, "to ford" refers to
@@ -53,34 +48,6 @@ Current features include:
 - display an entry for non-Fortran source files with file-level documentation
   and syntax highlighted code.
 
-## Installation
-The simplest way to install FORD is using [pip](https://pip.pypa.io/en/latest/).
-This can be done with the commands:
-
-    sudo apt-get install python-pip python-dev build-essential #For Debian-based Linux, if pip not already installed
-    sudo pip install ford
-
-Pip will automatically handle all dependencies for you. If
-you do not have administrative rights on the computer where you want to produce
-documentation, pip will allow you to install FORD and its dependencies in a
-[virtualenv](https://virtualenv.pypa.io/en/latest/) located somewhere in
-your home directory.
-
-If you prefer, you can install all of those dependencies manually and clone
-FORD from Github. Then place FORD somewhere in your PYTHONPATH.
-
-Alternatively, FORD is available through the [Homebrew](http://brew.sh) package
-manager for Mac OS X. To update Homebrew and install FORD, run these commands in
-a terminal:
-
-    brew update
-    brew install FORD
-
-If you would like to install the latest development (master) branch from github,
-simply add the `--HEAD` flag: `brew install --HEAD FORD`
-
-## Documentation
-More complete documentation can be found in the [project wiki](https://github.com/cmacmackin/ford/wiki).
 
 ## License
 This program is free software: you can redistribute it and/or modify
