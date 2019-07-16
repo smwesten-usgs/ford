@@ -221,7 +221,10 @@ class FortranBase(object):
         loc = self.get_dir()
         if loc:
             return outstr.format(self.base_url,loc,quote(self.ident))
-        elif isinstance(self,(FortranBoundProcedure,FortranCommon)):
+        elif (
+            isinstance(self,(FortranBoundProcedure,FortranCommon))
+            or isinstance(self, FortranVariable) and isinstance(self.parent, FortranType)
+        ):
             return self.parent.get_url() + '#' + self.anchor
         else:
             return None
@@ -348,7 +351,13 @@ class FortranBase(object):
             self.meta['summary'] = md.convert(self.meta['summary'])
             self.meta['summary'] = ford.utils.sub_macros(ford.utils.sub_notes(self.meta['summary']),self.base_url)
         elif PARA_CAPTURE_RE.search(self.doc):
-            self.meta['summary'] = PARA_CAPTURE_RE.search(self.doc).group()
+            if self.get_url() == None:
+                # There is no stand-alone webpage for this item (e.g.,
+                # an internal routine in a routine, so make the whole
+                # doc blob appear, without the link to "more..."
+                self.meta['summary'] = self.doc
+            else:
+                self.meta['summary'] = PARA_CAPTURE_RE.search(self.doc).group()
         else:
             self.meta['summary'] = ''
         if self.meta['summary'].strip() != self.doc.strip():
@@ -404,7 +413,7 @@ class FortranBase(object):
                 self.procedure.markdown(md, project)
         return
 
-    
+
     def sort(self):
         '''
         Sorts components of the object.
@@ -440,7 +449,7 @@ class FortranBase(object):
         if hasattr(self,'args'):
             #sort_items(self.args,args=True)
             pass
-    
+
 
     def make_links(self, project):
         """
@@ -762,31 +771,32 @@ class FortranContainer(FortranBase):
                     self.uses.append(self.USE_RE.match(line).groups())
                 else:
                     raise Exception("Found USE statemnt in {}".format(type(self).__name__[7:].upper()))
-            elif self.CALL_RE.search(line):
-                if hasattr(self,'calls'):
-                    # Arithmetic GOTOs looks little like function references:
-                    # "goto (1, 2, 3) i".  But even in free-form source we're
-                    # allowed to use a space: "go to (1, 2, 3) i".  Our CALL_RE
-                    # expression doesn't catch that so we first rule such a
-                    # GOTO out.
-                    if not self.ARITH_GOTO_RE.search(line):
-                        callvals = self.CALL_RE.findall(line)
-                        for val in callvals:
-                            if val.lower() not in self.calls and val.lower() not in INTRINSICS:
-                                self.calls.append(val.lower())
-                else:
-                    pass
-                    # Not raising an error here as too much possibility that something
-                    # has been misidentified as a function call
-                    #~ raise Exception("Found procedure call in {}".format(type(self).__name__[7:].upper()))
-            elif self.SUBCALL_RE.match(line):
-                # Need this to catch any subroutines called without argument lists
-                if hasattr(self,'calls'):
-                    callval = self.SUBCALL_RE.match(line).group(1)
-                    if callval.lower() not in self.calls and callval.lower() not in INTRINSICS:
-                        self.calls.append(callval.lower())
-                else:
-                    raise ("Found procedure call in {}".format(type(self).__name__[7:].upper()))
+            else:
+                if self.CALL_RE.search(line):
+                    if hasattr(self,'calls'):
+                        # Arithmetic GOTOs looks little like function references:
+                        # "goto (1, 2, 3) i".  But even in free-form source we're
+                        # allowed to use a space: "go to (1, 2, 3) i".  Our CALL_RE
+                        # expression doesn't catch that so we first rule such a
+                        # GOTO out.
+                        if not self.ARITH_GOTO_RE.search(line):
+                            callvals = self.CALL_RE.findall(line)
+                            for val in callvals:
+                                if val.lower() not in self.calls and val.lower() not in INTRINSICS:
+                                    self.calls.append(val.lower())
+                    else:
+                        pass
+                        # Not raising an error here as too much possibility that something
+                        # has been misidentified as a function call
+                        #~ raise Exception("Found procedure call in {}".format(type(self).__name__[7:].upper()))
+                if self.SUBCALL_RE.match(line):
+                    # Need this to catch any subroutines called without argument lists
+                    if hasattr(self,'calls'):
+                        callval = self.SUBCALL_RE.match(line).group(1)
+                        if callval.lower() not in self.calls and callval.lower() not in INTRINSICS:
+                            self.calls.append(callval.lower())
+                    else:
+                        raise ("Found procedure call in {}".format(type(self).__name__[7:].upper()))
 
 
         if not isinstance(self,FortranSourceFile):
@@ -859,7 +869,7 @@ class FortranCodeUnit(FortranContainer):
             self.all_absinterfaces.update(absints)
             self.all_types.update(types)
             self.all_vars.update(variables)
-        self.uses = [m[0] for m in self.uses]
+        self.uses = set([m[0] for m in self.uses])
 
         typelist = {}
         for dtype in self.types:
@@ -989,6 +999,12 @@ class FortranCodeUnit(FortranContainer):
         """
         Remove anything which shouldn't be displayed.
         """
+        def to_include(obj):
+            inc = obj.permission in self.display
+            if self.settings['hide_undoc'].lower() == 'true' and not obj.doc:
+                inc = False
+            return inc
+
         if self.obj == 'proc' and self.meta['proc_internals'] == 'false':
             self.functions = []
             self.subroutines = []
@@ -997,18 +1013,18 @@ class FortranCodeUnit(FortranContainer):
             self.absinterfaces = []
             self.variables = []
         else:
-            self.functions = [obj for obj in self.functions if obj.permission in self.display]
-            self.subroutines = [obj for obj in self.subroutines if obj.permission in self.display]
-            self.types = [obj for obj in self.types if obj.permission in self.display]
-            self.interfaces = [obj for obj in self.interfaces if obj.permission in self.display]
-            self.absinterfaces = [obj for obj in self.absinterfaces if obj.permission in self.display]
-            self.variables = [obj for obj in self.variables if obj.permission in self.display]
+            self.functions = [obj for obj in self.functions if to_include(obj)]
+            self.subroutines = [obj for obj in self.subroutines if to_include(obj)]
+            self.types = [obj for obj in self.types if to_include(obj)]
+            self.interfaces = [obj for obj in self.interfaces if to_include(obj)]
+            self.absinterfaces = [obj for obj in self.absinterfaces if to_include(obj)]
+            self.variables = [obj for obj in self.variables if to_include(obj)]
             if hasattr(self,'modprocedures'):
-                self.modprocedures = [obj for obj in self.modprocedures if obj.permission in self.display]
+                self.modprocedures = [obj for obj in self.modprocedures if to_include(obj)]
             if hasattr(self,'modsubroutines'):
-                self.modsubroutines = [obj for obj in self.modsubroutines if obj.permission in self.display]
+                self.modsubroutines = [obj for obj in self.modsubroutines if to_include(obj)]
             if hasattr(self,'modfunctions'):
-                self.modfunctions = [obj for obj in self.modfunctions if obj.permission in self.display]
+                self.modfunctions = [obj for obj in self.modfunctions if to_include(obj)]
         # Recurse
         for obj in self.absinterfaces:
             obj.visible = True
