@@ -19,8 +19,7 @@
   <link href="{{ project_url }}/css/pygments.css" rel="stylesheet">
   <link href="{{ project_url }}/css/font-awesome.min.css" rel="stylesheet">
   <link href="{{ project_url }}/css/bootstrap-toc.css" rel="stylesheet">
-  <link href="{{ project_url }}/css/VOLTAGE_theme.css" rel="stylesheet">
-  <!-- <link href="{{ project_url }}/css/local.css" rel="stylesheet"> -->
+    <!-- <link href="{{ project_url }}/css/local.css" rel="stylesheet"> -->
   {% if search|lower == 'true' %}
   <link href="{{ project_url }}/tipuesearch/tipuesearch.css" rel="stylesheet">
   {% endif %}
@@ -37,14 +36,14 @@
 <body data-spy="scroll" data-target="#toc">
 
   <!-- Fixed navbar -->
-  <nav class="navbar navbar-expand fixed-top navbar-dark bg-primary">
+  <nav class="navbar navbar-expand-lg fixed-top navbar-light bg-light">
 
     <a class="navbar-brand" href="{{ project_url }}/index.html">{{ project }}</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse" id="navbarText">
+    <div class="collapse navbar-collapse" navbar-light bg-light id="navbarText">
       <ul class="navbar-nav mr-auto">
 
         {% if pages %}
